@@ -10,13 +10,29 @@ function App() {
   const [agenda, setAgenda] = useState("");
   const [meetings, setMeetings] = useState([]);
 
+  // Calculate total cost
   const totalCost = participants.reduce(
     (sum, p) => sum + (p.hourlyRate * lengthMinutes) / 60,
     0
   );
 
+  // Agenda-based limits
+  const agendaLimits = {
+    "Project kickoff discussion": 2000,
+    "Sprint planning for next release": 1500,
+    "Budget review and approvals": 2500,
+    "Team retrospective": 1000,
+    "Client feedback session": 3000,
+  };
+
+  // Pick limit based on agenda (default = 1000)
+  const limit = agendaLimits[agenda] || 1000;
+
+  // Recommendation based on agenda + cost
   const recommendation =
-    totalCost > 100 ? "⚠️ Too expensive — reconsider" : "✅ Worth it — proceed";
+    totalCost > limit
+      ? "⚠️ Too expensive — reconsider"
+      : "✅ Worth it — proceed";
 
   // Fetch past meetings
   useEffect(() => {
@@ -37,7 +53,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 text-white">
+    <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 text-white">
       <h1 className="text-4xl font-extrabold mb-6 animate-pulse">
         Meeting Cost Calculator
       </h1>
@@ -61,7 +77,12 @@ function App() {
           className="border p-2 rounded w-full mt-4 focus:ring-2 focus:ring-indigo-400"
         />
 
-        <MeetingSummary totalCost={totalCost} recommendation={recommendation} />
+        {/* Pass limit to MeetingSummary */}
+        <MeetingSummary 
+          totalCost={totalCost} 
+          recommendation={recommendation} 
+          limit={limit} 
+        />
 
         <button
           onClick={saveMeeting}
